@@ -1,0 +1,126 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+.dashboard-navbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: #fff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.navbar-content {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}
+
+.container {
+    max-width: 600px; /* Puedes ajustar el valor según prefieras */
+    margin: 40px auto;
+    text-align: center;
+    background-color: white;
+    padding: 40px 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+
+h1 {
+    margin-bottom: 40px;
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #1c1e21;
+}
+
+.button-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.choice-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #4b4f56;
+    transition: all 0.3s ease;
+    width: 220px;
+    height: 180px;
+    justify-content: center;
+}
+
+.choice-btn:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.choice-btn:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.choice-btn img {
+    width: 64px;
+    height: 64px;
+    pointer-events: none; /* Prevents image from interfering with button events */
+}
+
+.input-group-custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.input-group-custom input {
+    width: 250px;
+    font-size: 1em;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.input-group-custom button {
+    width: 250px;
+    font-size: 1.1em;
+    padding: 10px 0;
+}

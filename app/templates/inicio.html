@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Empresa | Inicio</title>
+
+    <!-- CSS de Swiper -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inicio.css') }}">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="#" class="logo-link">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo de la Empresa" class="logo-img">
+                <span class="logo-text">Mi Empresa</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#nosotros">Nosotros</a></li>
+                    <li><a href="#galeria">Galería</a></li>
+                    <li><a href="#contacto">Contacto</a></li>  
+                    <li><a href="{{ url_for('user.login') }}" class="cta-button">Iniciar sesión</a></li>
+       
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="hero-content">
+                <h1>Innovación y Calidad a su Servicio</h1>
+                <p>Descubra cómo podemos ayudarle a alcanzar sus metas con nuestras soluciones a medida.</p>
+                <a href="#contacto" class="cta-button">Contáctenos</a>
+            </div>
+        </section>
+
+        <section id="nosotros" class="container section">
+            <h2>Sobre Nosotros</h2>
+            <p>Somos una empresa líder en el sector, comprometida con la excelencia y la satisfacción del cliente. Con más de 20 años de experiencia, ofrecemos soluciones innovadoras y personalizadas para cada uno de nuestros clientes. Nuestra misión es transformar ideas en realidades que impulsen el crecimiento y el éxito.</p>
+        </section>
+
+        <section id="galeria" class="section">
+            <div class="container">
+                <h2>Nuestra Galería</h2>
+                <div class="swiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide"><img src="{{ url_for('static', filename='img/carousel-image-1.png') }}" alt="Imagen de un espacio de oficina moderno"></div>
+                        <div class="swiper-slide"><img src="{{ url_for('static', filename='img/carousel-image-2.png') }}" alt="Imagen de un equipo colaborando en un proyecto"></div>
+                        <div class="swiper-slide"><img src="{{ url_for('static', filename='img/carousel-image-3.png') }}" alt="Imagen mostrando un producto innovador de la empresa"></div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="container section">
+            <h2>Información de Contacto</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h3>Dirección</h3>
+                    <p>Avenida Principal 123, Ciudad, País</p>
+                </div>
+                <div class="contact-item">
+                    <h3>Teléfono</h3>
+                    <p>+12 345 678 90</p>
+                </div>
+                <div class="contact-item">
+                    <h3>Email</h3>
+                    <p><a href="mailto:contacto@miempresa.com">contacto@miempresa.com</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Mi Empresa. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Importmap para Swiper -->
+    <script type="importmap">
+    {
+      "imports": {
+        "swiper": "https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.mjs"
+      }
+    }
+    </script>
+
+    <!-- Tu JS principal -->
+    <script type="module" src="{{ url_for('static', filename='js/inicio.js') }}"></script>
+</body>
+</html>

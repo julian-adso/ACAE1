@@ -1,0 +1,90 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Asistencia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="dashboard-navbar">
+        <div class="navbar-content">
+            <span class="navbar-user">Bienvenido, <strong>{{ username }}</strong></span>
+            <a href="{{ url_for('user.logout') }}" class="logout-btn">Cerrar sesión</a>
+        </div>
+    </nav>
+        <h1>Seleccione el método de registro</h1>
+        <div class="button-container">
+            <button id="qr-btn" class="choice-btn">
+                <img src="{{ url_for('static', filename='img/qr-code-icon.png') }}" alt="Icono de Código QR">
+                <span>Código QR</span>
+            </button>
+            <button id="doc-btn" class="choice-btn">
+                <img src="{{ url_for('static', filename='img/id-card-icon.png') }}" alt="Icono de Documento">
+                <span>Documento de Identidad</span>
+            </button>
+        </div>
+        <div id="input-container"></div>
+    </div>
+</body>
+<script>
+let inputVisible = false;
+
+document.getElementById('doc-btn').addEventListener('click', function() {
+    const container = document.getElementById('input-container');
+    if (!inputVisible) {
+        container.innerHTML = `
+            <div class="input-group-custom">
+                <input type="text" id="documento-input" placeholder="Ingrese su documento" class="form-control mb-3">
+                <button class="btn btn-primary" id="ingreso-btn">
+                    <span>Registrar</span>
+                </button>
+            </div>
+        `;
+        inputVisible = true;
+
+        document.getElementById('ingreso-btn').addEventListener('click', async function() {
+            const documento = document.getElementById('documento-input').value.trim();
+            if (!documento) {
+                alert('⚠️ Por favor ingrese su documento.');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/registrar_ingreso', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ documento })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok && data.message && data.message.includes("motivo")) {
+                    const motivo = prompt(data.message);
+                    if (motivo) {
+                        const res2 = await fetch('/registrar_ingreso', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ documento, motivo })
+                        });
+                        const data2 = await res2.json();
+                        alert(data2.message);
+                    }
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error en la petición:", error);
+                alert("❌ Error de conexión con el servidor.");
+            }
+        });
+    } else {
+        container.innerHTML = '';
+        inputVisible = false;
+    }
+});
+</script>
+</html>
