@@ -13,6 +13,9 @@ from app.models.super import Super
 from calendar import monthrange
 from flask import send_file
 from app.utilidad.utils_excel import exportar_asistencia_excel
+import os
+import qrcode
+from werkzeug.utils import secure_filename
 
 user_bp = Blueprint('user', __name__)
 
@@ -159,8 +162,20 @@ def register():
             horario=horario
         )
         db.session.add(user)
-        db.session.commit()
+        db.session.flush() #Para obtener el IDuser
 
+        # Generar QR y guardar la ruta
+        qr_folder = os.path.join('app', 'static', 'qr')
+        os.makedirs(qr_folder, exist_ok=True)
+        qr_filename = f"user_{user.idUser}.png"
+        qr_path = os.path.join(qr_folder, qr_filename)
+        qr_data = f"{user.documentUser}" # Se pone el documento y que es lo que se desea codificar
+        img = qrcode.make(qr_data)
+        img.save(qr_path)
+        user.qr_path = f"qr/{qr_filename}"
+
+        db.session.commit()
+        
         flash('Empleado registrado exitosamente')
         return redirect(url_for('user.dashboard'))
 
@@ -227,7 +242,8 @@ def index():
         username=usuario.usernameUser,
         asistencias=asistencias,
         ausencias=ausencias,
-        historial=historial
+        historial=historial,
+        qr_path=usuario.qr_path
     )
 
 @user_bp.route('/dashboard')

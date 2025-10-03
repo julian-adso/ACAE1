@@ -18,8 +18,29 @@
             <a href="{{ url_for('user.logout') }}" class="btn btn-danger">Cerrar sesión</a>
             <!-- Nombre dinámico del usuario -->
             <p>Bienvenido, <strong>{{ username }}</strong></p>
+            <!-- Botón para ver QR -->
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#qrModal">Ver mi QR</button>
         </div>
     </header>
+
+    <!-- Modal para mostrar el QR -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="qrModalLabel">Mi Código QR</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-center">
+            {% if qr_path %}
+            <img src="{{ url_for('static', filename=qr_path) }}" alt="QR del usuario" style="max-width: 250px;">
+            {% else %}
+            <p>No hay QR disponible.</p>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+    </div>
 
     <main class="dashboard-container">
         <!-- Resumen de asistencias y ausencias -->

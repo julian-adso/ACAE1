@@ -12,6 +12,7 @@ class User(db.Model):
     phoneUser = db.Column(db.String(15), nullable=False)
     emailUser = db.Column(db.String(100), nullable=False)
     horario = db.Column(db.Enum('Mañana', 'Tarde', 'Noche'), nullable=False)
+    qr_path = db.Column(db.String(255), nullable=True)  # Nueva columna para la ruta del QR
     
     login = db.relationship('Login', back_populates ='users')
     salidas = db.relationship('Salida', backref = 'user')
