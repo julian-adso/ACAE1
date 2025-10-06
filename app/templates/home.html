@@ -27,7 +27,103 @@
                 <span>Documento de Identidad</span>
             </button>
         </div>
-        <div id="input-container"></div>
+        <div id="input-container">
+<!-- Librería del lector QR -->
+<script src="https://unpkg.com/html5-qrcode@2.4.9/minified/html5-qrcode.min.js"></script>
+
+<script>
+let qrScanner = null;
+let scannerActivo = false;
+
+document.getElementById("qr-btn").addEventListener("click", async () => {
+    const container = document.getElementById("input-container");
+
+    if (!scannerActivo) {
+        // Crear contenedor de lector y botón de cierre
+        container.innerHTML = `
+            <div id="reader" style="width:320px; margin:auto; border:2px solid #ccc; border-radius:10px;"></div>
+            <button id="cerrar-qr" class="btn btn-danger mt-3">Cerrar cámara</button>
+        `;
+
+        scannerActivo = true;
+        qrScanner = new Html5Qrcode("reader");
+
+        try {
+            const devices = await Html5Qrcode.getCameras();
+            if (!devices || devices.length === 0) {
+                alert("❌ No se encontró ninguna cámara disponible.");
+                scannerActivo = false;
+                return;
+            }
+
+            // Selecciona cámara trasera si existe
+            const camara = devices.find(d => /back|rear|environment/i.test(d.label))?.id || devices[0].id;
+
+            await qrScanner.start(
+                camara,
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                async (textoQR) => {
+                    console.log("✅ Código QR leído:", textoQR);
+
+                    // Detener escaneo para evitar lecturas múltiples
+                    await qrScanner.stop();
+                    scannerActivo = false;
+
+                    // Enviar al backend Flask
+                    const res = await fetch("/registrar_ingreso", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ documento: textoQR })
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok && data.message && data.message.includes("motivo")) {
+                        const motivo = prompt(data.message);
+                        if (motivo) {
+                            const res2 = await fetch("/registrar_ingreso", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ documento: textoQR, motivo: motivo })
+                            });
+                            const data2 = await res2.json();
+                            alert(data2.message);
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+
+                    // Limpiar cámara y contenedor
+                    container.innerHTML = "";
+                }
+            );
+
+        } catch (error) {
+            console.error("Error al iniciar cámara:", error);
+            alert("⚠️ No se pudo acceder a la cámara. Permite el acceso en tu navegador.");
+            scannerActivo = false;
+        }
+
+        // Botón para cerrar manualmente la cámara
+        document.getElementById("cerrar-qr").addEventListener("click", async () => {
+            if (qrScanner && scannerActivo) {
+                await qrScanner.stop();
+                scannerActivo = false;
+            }
+            container.innerHTML = "";
+        });
+
+    } else {
+        // Si ya está activo, detener
+        if (qrScanner && scannerActivo) {
+            await qrScanner.stop();
+        }
+        scannerActivo = false;
+        container.innerHTML = "";
+    }
+});
+</script>
+        </div>
     </div>
 </body>
 <script>
