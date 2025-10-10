@@ -1,9 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- DATOS DE EJEMPLO ---
-    // En una aplicación real, estos datos vendrían de una base de datos.
+    // Dark mode toggle functionality
+    const themeToggle = document.querySelector('.theme-toggle');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Set initial theme
+    if (prefersDarkScheme.matches) {
+        document.body.setAttribute('data-theme', 'dark');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.body.getAttribute('data-theme');
+        document.body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        themeToggle.querySelector('span').textContent = 
+            currentTheme === 'dark' ? 'dark_mode' : 'light_mode';
+    });
 
-
+    // --- DATOS DE ASISTENCIA ---
     const HORA_ENTRADA_OFICIAL = '09:00';
 
     // --- ELEMENTOS DEL DOM ---

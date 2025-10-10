@@ -11,11 +11,11 @@
 <body>
     <div class="container">
         <nav class="dashboard-navbar">
-        <div class="navbar-content">
-            <span class="navbar-user">Bienvenido, <strong>{{ username }}</strong></span>
-            <a href="{{ url_for('user.logout') }}" class="logout-btn">Cerrar sesión</a>
-        </div>
-    </nav>
+            <div class="navbar-content">
+                <span class="navbar-user">Bienvenido, <strong>{{ username }}</strong></span>
+                <a href="{{ url_for('user.logout') }}" class="logout-btn">Cerrar sesión</a>
+            </div>
+        </nav>
         <h1>Seleccione el método de registro</h1>
         <div class="button-container">
             <button id="qr-btn" class="choice-btn">
@@ -27,7 +27,7 @@
                 <span>Documento de Identidad</span>
             </button>
         </div>
-        <div id="input-container">
+    <div id="input-container">
 <!-- Librería del lector QR -->
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
