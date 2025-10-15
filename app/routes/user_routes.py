@@ -16,6 +16,8 @@ from app.utilidad.utils_excel import exportar_asistencia_excel
 import os
 import qrcode
 from werkzeug.utils import secure_filename
+from flask import send_file
+from io import BytesIO
 
 user_bp = Blueprint('user', __name__)
 
@@ -506,3 +508,59 @@ def obtener_asistencia(tipo, empleado_id):
                 })
 
     return jsonify({'success': True, 'eventos': eventos, 'nombre': nombre, 'tipo': tipo})
+
+def obtener_asistencias_usuario(tipo, user_id):
+    """Devuelve los registros de asistencia (ingresos y salidas) de un usuario o admin."""
+    query = Ingreso.query
+
+    if tipo == "user":
+        query = query.filter_by(user_id=user_id)
+    elif tipo == "admin":
+        query = query.filter_by(admin_id=user_id)
+    else:
+        return []
+
+    asistencias = []
+    for ingreso in query.order_by(Ingreso.fecha.asc()).all():
+        
+        # Buscar salida asociada (según relación o fecha)
+        salida = Salida.query.filter(
+            (Salida.ingreso_id == ingreso.idIngreso) |  # relación directa
+            ((Salida.fecha == ingreso.fecha) & (Salida.user_id == ingreso.user_id))  # mismo día
+        ).order_by(Salida.hora_salida.desc()).first()
+
+        hora_ingreso = ingreso.hora.strftime("%H:%M") if ingreso.hora else ""
+        hora_salida = salida.hora_salida.strftime("%H:%M") if salida and salida.hora_salida else ""
+        
+        asistencias.append({
+            "fecha": ingreso.fecha.strftime("%Y-%m-%d"),
+            "ingreso": ingreso.hora.strftime("%H:%M") if ingreso.hora else "",
+            "salida": salida.hora_salida.strftime("%H:%M") if salida else "",
+            "estado": ingreso.estado,
+            "motivo": ingreso.motivo or "",
+            "horario": ingreso.horario or ""
+        })
+    return asistencias
+
+
+def obtener_nombre_empleado(tipo, user_id):
+    """Devuelve el nombre del empleado o admin según el tipo."""
+    if tipo == "user":
+        usuario = User.query.get(user_id)
+        return usuario.usernameUser if usuario else "Desconocido"
+    elif tipo == "admin":
+        admin = Admin.query.get(user_id)
+        return admin.usernameAdmin if admin else "Desconocido"
+    else:
+        return "Desconocido"
+
+@user_bp.route('/api/exportar_excel/<tipo>/<int:user_id>')
+def exportar_excel(tipo, user_id):
+    datos = obtener_asistencias_usuario(tipo, user_id)  # ← tu función que obtiene datos
+    empleado = obtener_nombre_empleado(tipo, user_id)
+    file_stream = BytesIO()
+
+    # generar con estilos
+    filename = exportar_asistencia_excel(datos, empleado, file_stream)
+    file_stream.seek(0)
+    return send_file(file_stream, as_attachment=True, download_name=f"reporte_{empleado}.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

@@ -225,56 +225,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 📝 Exportar detalles del mes en Excel
     // =============================
     document.getElementById('export-details-btn').addEventListener('click', async function () {
-    const userId = employeeSelect.value;
-    const empleadoNombre = employeeSelect.options[employeeSelect.selectedIndex].text; // ← obtiene el nombre
-    const fechaActual = new Date();
-    const year = fechaActual.getFullYear();
-    const month = String(fechaActual.getMonth() + 1).padStart(2, '0');
-    const mes = `${year}-${month}`;
-
-    try {
         const tipo = employeeSelect.options[employeeSelect.selectedIndex].getAttribute('data-tipo');
-        const res = await fetch(`/api/empleado/${tipo}/${userId}/asistencia?mes=${mes}`);
-        const data = await res.json();
+        const userId = employeeSelect.value;
+        window.location.href = `/api/exportar_excel/${tipo}/${userId}`;
+    });
 
-        if (data.success && Array.isArray(data.eventos)) {
-            data.eventos.sort((a, b) => {
-                const fechaA = a.extendedProps.fecha || '';
-                const fechaB = b.extendedProps.fecha || '';
-                const horaA = a.extendedProps.hora || '';
-                const horaB = b.extendedProps.hora || '';
-                if (fechaA < fechaB) return -1;
-                if (fechaA > fechaB) return 1;
-                if (horaA < horaB) return -1;
-                if (horaA > horaB) return 1;
-                return 0;
-            });
-
-            const rows = data.eventos.map(ev => ({
-                Fecha: ev.extendedProps.fecha || '',
-                Ingreso: ev.tipo === "ingreso" ? ev.extendedProps.hora || '' : '',
-                Salida: ev.tipo === "salida" ? ev.extendedProps.hora || ev.extendedProps.hora_salida || '' : '',
-                Estado: ev.extendedProps.estado || (ev.tipo === 'salida' ? 'Salida' : ''),
-                Motivo: ev.extendedProps.motivo || ''
-            }));
-            const sheetData = [
-                [`Empleado: ${empleadoNombre}`], // ← usa el nombre del select
-                ["Fecha", "Ingreso", "Salida", "Estado", "Motivo"],
-                ...rows.map(r => [r.Fecha, r.Ingreso, r.Salida, r.Estado, r.Motivo])
-            ];
-
-            const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Asistencias");
-
-            const empleadoTipo = employeeSelect.options[employeeSelect.selectedIndex].getAttribute('data-tipo') || '';
-            XLSX.writeFile(workbook, `asistencias_${empleadoNombre}_${empleadoTipo}_${mes}.xlsx`);
-        } else {
-            alert("No se pudo obtener la información del mes.");
-        }
-    } catch (error) {
-        alert("Error al exportar los datos del mes.");
-    }
-});
 
 });
