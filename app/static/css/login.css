@@ -135,8 +135,8 @@ button:hover {
 }
 
 .error-message {
-    color: var(--error-color);
-    font-size: 14px;
-    margin-bottom: 15px;
-    min-height: 1em; /* Reserve space to prevent layout shift */
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
 }

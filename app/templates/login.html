@@ -37,6 +37,17 @@
 
             <p id="error-message" class="error-message"></p>
 
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <p class="error-message">
+                    {% for message in messages %}
+                        ⚠️ {{ message }}
+                    {% endfor %}
+                    </p>
+                {% endif %}
+            {% endwith %}
+
+
             <button type="submit">Ingresar</button>
         </form>
     </div>

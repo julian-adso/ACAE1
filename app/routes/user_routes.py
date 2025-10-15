@@ -256,15 +256,21 @@ def dashboard():
     return render_template('dashboard.html', username=session['username'])
 
 # Registrar el horario y el ingreso
-def determinar_horario_actual():
-    ahora = datetime.now().time()
+from datetime import datetime
+import pytz
 
-    if ahora >= datetime.strptime("06:00", "%H:%M").time() and ahora < datetime.strptime("12:00", "%H:%M").time():
+def determinar_horario_actual():
+    # Definir la zona horaria local
+    tz = pytz.timezone("America/Bogota")
+    ahora = datetime.now(tz).time()
+
+    if datetime.strptime("06:00", "%H:%M").time() <= ahora < datetime.strptime("12:00", "%H:%M").time():
         return "Mañana"
-    elif ahora >= datetime.strptime("12:00", "%H:%M").time() and ahora < datetime.strptime("18:00", "%H:%M").time():
+    elif datetime.strptime("12:00", "%H:%M").time() <= ahora < datetime.strptime("18:00", "%H:%M").time():
         return "Tarde"
     else:
         return "Noche"
+
     
 # route del super
 
