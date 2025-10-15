@@ -1,12 +1,16 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Asistencia</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}?v=2.0">
+
+    <!-- Librerías necesarias -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,65 +20,128 @@
                 <a href="{{ url_for('user.logout') }}" class="logout-btn">Cerrar sesión</a>
             </div>
         </nav>
+
         <h1>Seleccione el método de registro</h1>
+
         <div class="button-container">
             <button id="qr-btn" class="choice-btn">
                 <img src="{{ url_for('static', filename='img/qr-code-icon.png') }}" alt="Icono de Código QR">
                 <span>Código QR</span>
             </button>
+
             <button id="doc-btn" class="choice-btn">
                 <img src="{{ url_for('static', filename='img/id-card-icon.png') }}" alt="Icono de Documento">
                 <span>Documento de Identidad</span>
             </button>
         </div>
-    <div id="input-container">
-<!-- Librería del lector QR -->
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-<script>
-let qrScanner = null;
-let scannerActivo = false;
+        <div id="input-container"></div>
+    </div>
 
-document.getElementById("qr-btn").addEventListener("click", async () => {
-    const container = document.getElementById("input-container");
+    <script>
+    let qrScanner = null;
+    let scannerActivo = false;
+    let inputVisible = false;
 
-    if (!scannerActivo) {
-        // Crear contenedor de lector y botón de cierre
-        container.innerHTML = `
-            <div id="reader" style="width:320px; margin:auto; border:2px solid #ccc; border-radius:10px;"></div>
-            <button id="cerrar-qr" class="btn btn-danger mt-3">Cerrar cámara</button>
-        `;
+    // === Registro con QR ===
+    document.getElementById("qr-btn").addEventListener("click", async () => {
+        const container = document.getElementById("input-container");
 
-        scannerActivo = true;
-        qrScanner = new Html5Qrcode("reader");
+        if (!scannerActivo) {
+            container.innerHTML = `
+                <div id="reader" class="qr-reader"></div>
+                <button id="cerrar-qr" class="btn danger mt-3">Cerrar cámara</button>
+            `;
 
-        try {
-            const devices = await Html5Qrcode.getCameras();
-            console.log("Dispositivos detectados:", devices);
-            if (!devices || devices.length === 0) {
-                alert("❌ No se encontró ninguna cámara disponible.");
+            scannerActivo = true;
+            qrScanner = new Html5Qrcode("reader");
+
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (!devices || devices.length === 0) {
+                    alert("❌ No se encontró ninguna cámara disponible.");
+                    scannerActivo = false;
+                    return;
+                }
+
+                const camara = devices.find(d => /back|rear|environment/i.test(d.label))?.id || devices[0].id;
+
+                await qrScanner.start(
+                    camara,
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    async (textoQR) => {
+                        await qrScanner.stop();
+                        scannerActivo = false;
+
+                        const res = await fetch("/registrar_ingreso", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ documento: textoQR })
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok && data.message && data.message.includes("motivo")) {
+                            const motivo = prompt(data.message);
+                            if (motivo) {
+                                const res2 = await fetch("/registrar_ingreso", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ documento: textoQR, motivo: motivo })
+                                });
+                                const data2 = await res2.json();
+                                alert(data2.message);
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+
+                        container.innerHTML = "";
+                    }
+                );
+            } catch (error) {
+                alert("⚠️ No se pudo acceder a la cámara. Permite el acceso en tu navegador.");
                 scannerActivo = false;
-                return;
             }
 
-            // Selecciona cámara trasera si existe
-            const camara = devices.find(d => /back|rear|environment/i.test(d.label))?.id || devices[0].id;
-
-            await qrScanner.start(
-                camara,
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                async (textoQR) => {
-                    console.log("✅ Código QR leído:", textoQR);
-
-                    // Detener escaneo para evitar lecturas múltiples
+            document.getElementById("cerrar-qr").addEventListener("click", async () => {
+                if (qrScanner && scannerActivo) {
                     await qrScanner.stop();
                     scannerActivo = false;
+                }
+                container.innerHTML = "";
+            });
 
-                    // Enviar al backend Flask
-                    const res = await fetch("/registrar_ingreso", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ documento: textoQR })
+        } else {
+            if (qrScanner && scannerActivo) await qrScanner.stop();
+            scannerActivo = false;
+            container.innerHTML = "";
+        }
+    });
+
+    // === Registro por Documento ===
+    document.getElementById('doc-btn').addEventListener('click', function() {
+        const container = document.getElementById('input-container');
+        if (!inputVisible) {
+            container.innerHTML = `
+                <div class="input-group-custom">
+                    <input type="text" id="documento-input" placeholder="Ingrese su documento">
+                    <button class="btn primary" id="ingreso-btn">Registrar</button>
+                </div>
+            `;
+            inputVisible = true;
+
+            document.getElementById('ingreso-btn').addEventListener('click', async function() {
+                const documento = document.getElementById('documento-input').value.trim();
+                if (!documento) {
+                    alert('⚠️ Por favor ingrese su documento.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/registrar_ingreso', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ documento })
                     });
 
                     const data = await res.json();
@@ -82,10 +149,10 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
                     if (!res.ok && data.message && data.message.includes("motivo")) {
                         const motivo = prompt(data.message);
                         if (motivo) {
-                            const res2 = await fetch("/registrar_ingreso", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ documento: textoQR, motivo: motivo })
+                            const res2 = await fetch('/registrar_ingreso', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ documento, motivo })
                             });
                             const data2 = await res2.json();
                             alert(data2.message);
@@ -93,95 +160,15 @@ document.getElementById("qr-btn").addEventListener("click", async () => {
                     } else {
                         alert(data.message);
                     }
-
-                    // Limpiar cámara y contenedor
-                    container.innerHTML = "";
+                } catch (error) {
+                    alert("❌ Error de conexión con el servidor.");
                 }
-            );
-
-        } catch (error) {
-            console.error("Error al iniciar cámara:", error);
-            alert("⚠️ No se pudo acceder a la cámara. Permite el acceso en tu navegador.");
-            scannerActivo = false;
+            });
+        } else {
+            container.innerHTML = '';
+            inputVisible = false;
         }
-
-        // Botón para cerrar manualmente la cámara
-        document.getElementById("cerrar-qr").addEventListener("click", async () => {
-            if (qrScanner && scannerActivo) {
-                await qrScanner.stop();
-                scannerActivo = false;
-            }
-            container.innerHTML = "";
-        });
-
-    } else {
-        // Si ya está activo, detener
-        if (qrScanner && scannerActivo) {
-            await qrScanner.stop();
-        }
-        scannerActivo = false;
-        container.innerHTML = "";
-    }
-});
-</script>
-        </div>
-    </div>
+    });
+    </script>
 </body>
-<script>
-let inputVisible = false;
-
-document.getElementById('doc-btn').addEventListener('click', function() {
-    const container = document.getElementById('input-container');
-    if (!inputVisible) {
-        container.innerHTML = `
-            <div class="input-group-custom">
-                <input type="text" id="documento-input" placeholder="Ingrese su documento" class="form-control mb-3">
-                <button class="btn btn-primary" id="ingreso-btn">
-                    <span>Registrar</span>
-                </button>
-            </div>
-        `;
-        inputVisible = true;
-
-        document.getElementById('ingreso-btn').addEventListener('click', async function() {
-            const documento = document.getElementById('documento-input').value.trim();
-            if (!documento) {
-                alert('⚠️ Por favor ingrese su documento.');
-                return;
-            }
-            
-            try {
-                const res = await fetch('/registrar_ingreso', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ documento })
-                });
-
-                const data = await res.json();
-
-                if (!res.ok && data.message && data.message.includes("motivo")) {
-                    const motivo = prompt(data.message);
-                    if (motivo) {
-                        const res2 = await fetch('/registrar_ingreso', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ documento, motivo })
-                        });
-                        const data2 = await res2.json();
-                        alert(data2.message);
-                    }
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.error("Error en la petición:", error);
-                alert("❌ Error de conexión con el servidor.");
-            }
-        });
-    } else {
-        container.innerHTML = '';
-        inputVisible = false;
-    }
-});
-</script>
 </html>

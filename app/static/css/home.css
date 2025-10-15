@@ -3,31 +3,45 @@
     --secondary-color: #ff9900;
     --accent-color: #ffb84d;
     --text-color: #ffffff;
-    --border-color: #e0e0e0;
     --input-bg: #162233;
     --input-border: #ff9900;
+    --shadow: 0 4px 12px rgba(0,0,0,0.25);
+    --radius: 12px;
 }
 
+/* === ESTRUCTURA === */
 body {
     background: var(--primary-bg);
     color: var(--text-color);
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    background: var(--input-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 32px;
+    text-align: center;
+}
+
+/* === NAVBAR === */
 .dashboard-navbar {
-    background: var(--primary-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: 12px 0;
-    margin-bottom: 24px;
-    border-radius: 12px 12px 0 0;
+    background: #162233;
+    border-bottom: 2px solid var(--secondary-color);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    margin-bottom: 30px;
 }
 
 .navbar-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: var(--text-color);
 }
 
 .logout-btn {
@@ -35,121 +49,123 @@ body {
     color: var(--primary-bg);
     border: none;
     padding: 8px 18px;
-    border-radius: 20px;
-    font-weight: 500;
-    transition: background 0.3s;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
     text-decoration: none;
-    font-weight: bold;
+    transition: 0.3s;
 }
-
 .logout-btn:hover {
     background: var(--accent-color);
-    color: var(--primary-bg);
 }
 
-.container {
-    max-width: 600px;
-    margin: 40px auto;
-    background: rgba(10, 22, 35, 0.97);
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-    padding: 32px 24px;
-}
-
-.container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
-
-
+/* === TÍTULOS === */
 h1 {
-    color: var(--secondary-color);
-    text-align: center;
+    color: var(--accent-color);
     margin-bottom: 32px;
-    font-weight: 700;
+    font-size: 1.6rem;
 }
 
+/* === BOTONES PRINCIPALES === */
 .button-container {
     display: flex;
-    gap: 30px;
     justify-content: center;
-    gap: 32px;
-    margin-bottom: 32px;
+    gap: 28px;
+    margin-bottom: 28px;
 }
 
 .choice-btn {
     background: var(--secondary-color);
     color: var(--primary-bg);
     border: none;
-    border-radius: 16px;
-    padding: 18px 28px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    width: 160px;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    transition: background 0.3s, color 0.3s;
+    gap: 10px;
+    transition: 0.3s;
+    box-shadow: var(--shadow);
 }
-
 .choice-btn:hover {
     background: var(--accent-color);
-    color: var(--primary-bg);
-}
-
-.choice-btn:active {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 
 .choice-btn img {
-    width: 64px;
-    height: 64px;
-    pointer-events: none; /* Prevents image from interfering with button events */
+    width: 60px;
+    height: 60px;
 }
 
+/* === INPUT DOCUMENTO === */
 .input-group-custom {
-    background: var(--input-bg);
-    border-radius: 12px;
+    background: #101a2a;
+    border-radius: var(--radius);
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    margin-top: 24px;
+    margin-top: 20px;
+    box-shadow: var(--shadow);
 }
 
 .input-group-custom input {
+    width: 100%;
     background: var(--primary-bg);
-    color: var(--text-color);
     border: 2px solid var(--input-border);
+    color: var(--text-color);
     border-radius: 8px;
     padding: 10px;
-    margin-bottom: 12px;
-    width: 100%;
+    font-size: 1em;
+    margin-bottom: 14px;
+    transition: border-color 0.3s;
 }
-
-.input-group-custom button {
-    width: 250px;
-    font-size: 1.1em;
-    padding: 10px 0
-}
-
 .input-group-custom input:focus {
     outline: none;
     border-color: var(--accent-color);
 }
 
-.input-group-custom .btn-primary {
-    background: var(--secondary-color);
-    color: var(--primary-bg);
+/* === BOTONES GENERALES === */
+.btn {
     border: none;
     border-radius: 8px;
-    padding: 10px 24px;
-    font-weight: 500;
-    transition: background 0.3s;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn.primary {
+    background: var(--secondary-color);
+    color: var(--primary-bg);
+}
+.btn.primary:hover {
+    background: var(--accent-color);
+}
+.btn.danger {
+    background: #d9534f;
+    color: white;
+}
+.btn.danger:hover {
+    background: #c0392b;
 }
 
-.input-group-custom .btn-primary:hover {
-    background: var(--accent-color);
-    color: var(--primary-bg);
+/* === ESCÁNER QR === */
+.qr-reader {
+    width: 320px;
+    margin: 0 auto;
+    border: 2px solid var(--secondary-color);
+    border-radius: var(--radius);
+    background: #111c2d;
+    padding: 8px;
+    box-shadow: var(--shadow);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 600px) {
+    .button-container {
+        flex-direction: column;
+    }
+    .choice-btn {
+        width: 100%;
+    }
 }
