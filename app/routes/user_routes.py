@@ -409,28 +409,30 @@ def registrar_ingreso():
     # 3. Si no se encontró nada
     return jsonify({'success': False, 'message': 'Documento no encontrado'}), 404
 
-@user_bp.route('/api/empleados')
-def obtener_empleados():
-    usuarios = User.query.all()
-    admins = Admin.query.all()
-    empleados = [
-        {
-            'id': u.idUser,
-            'name': u.usernameUser,
-            'tipo': 'user'
-        }
-        for u in usuarios
-    ] + [
-        {
-            'id': a.idAdmin,
-            'name': a.usernameAdmin,
-            'tipo': 'admin'
-        }
-        for a in admins
-    ]
-    return jsonify(empleados)
+@user_bp.route('/api/empleado/<string:tipo>/<int:empleado_id>', methods=['GET'])
+def obtener_empleado(tipo, empleado_id):
+    if tipo == 'user':
+        empleado = User.query.get(empleado_id)
+    elif tipo == 'admin':
+        empleado = Admin.query.get(empleado_id)
+    else:
+        return jsonify({'success': False, 'message': 'Tipo inválido'}), 400
 
-from flask import send_file, jsonify
+    if not empleado:
+        return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
+
+    # Devuelve los datos principales del empleado
+    return jsonify({
+        'success': True,
+        'empleado': {
+            'username': empleado.usernameUser,
+            'document': empleado.documentUser,
+            'phone': empleado.phoneUser,
+            'email': empleado.emailUser,
+            'horario': empleado.horario
+        }
+    })
+
 
 
 @user_bp.route('/api/empleado/<string:tipo>/<int:empleado_id>/asistencia')
@@ -570,3 +572,98 @@ def exportar_excel(tipo, user_id):
     filename = exportar_asistencia_excel(datos, empleado, file_stream)
     file_stream.seek(0)
     return send_file(file_stream, as_attachment=True, download_name=f"reporte_{empleado}.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+@user_bp.route('/api/empleados/<string:tipo>/<int:empleado_id>', methods=['DELETE'])
+def eliminar_empleados(tipo, empleado_id):
+    if tipo == 'user':
+        empleado = User.query.get(empleado_id)
+    elif tipo == 'admin':
+        empleado = Admin.query.get(empleado_id)
+    else:
+        return jsonify({'success': False, 'message': 'Tipo inválido'}), 400
+
+    if not empleado:
+        return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
+
+    # Eliminar login asociado
+    login = empleado.login if hasattr(empleado, 'login') else None
+    if login:
+        db.session.delete(login)
+
+    db.session.delete(empleado)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Empleado eliminado correctamente'})
+
+@user_bp.route('/api/empleado/<tipo>/<int:id>', methods=['PUT'])
+def actualizar_empleado(tipo, id):
+    """Actualizar datos de un empleado (usuario o admin)."""
+    data = request.get_json()
+
+    if tipo == 'user':
+        empleado = User.query.get(id)
+    elif tipo == 'admin':
+        empleado = Admin.query.get(id)
+    else:
+        return jsonify({"success": False, "message": "Tipo no válido"}), 400
+
+    if not empleado:
+        return jsonify({"success": False, "message": "Empleado no encontrado"}), 404
+
+    # ✅ Actualizar campos solo si se enviaron
+    if tipo == 'user':
+        empleado.usernameUser = data.get('usernameUser', empleado.usernameUser)
+        empleado.documentUser = data.get('documentUser', empleado.documentUser)
+        empleado.phoneUser = data.get('phoneUser', empleado.phoneUser)
+        empleado.emailUser = data.get('emailUser', empleado.emailUser)
+        empleado.horario = data.get('horario', empleado.horario)
+    else:
+        empleado.usernameAdmin = data.get('usernameAdmin', empleado.usernameAdmin)
+        empleado.documentAdmin = data.get('documentAdmin', empleado.documentAdmin)
+        empleado.phoneAdmin = data.get('phoneAdmin', empleado.phoneAdmin)
+        empleado.emailAdmin = data.get('emailAdmin', empleado.emailAdmin)
+        empleado.horario = data.get('horario', empleado.horario)
+
+    # ✅ Si se envía contraseña nueva
+    if data.get('password'):
+        from werkzeug.security import generate_password_hash
+        hashed = generate_password_hash(data['password'])
+        if tipo == 'user':
+            empleado.passwordUser = hashed
+        else:
+            empleado.passwordAdmin = hashed
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "Empleado actualizado correctamente"
+    })
+
+@user_bp.route('/api/empleados', methods=['GET'])
+def listar_empleados():
+    """Devuelve todos los empleados (usuarios y admins) con sus datos básicos."""
+    empleados = []
+
+    # Usuarios normales
+    users = User.query.all()
+    for u in users:
+        empleados.append({
+            'id': u.idUser,
+            'name': u.usernameUser,
+            'tipo': 'user',
+            'document': u.documentUser,
+            'horario': u.horario
+        })
+
+    # Administradores
+    admins = Admin.query.all()
+    for a in admins:
+        empleados.append({
+            'id': a.idAdmin,
+            'name': a.usernameAdmin,
+            'tipo': 'admin',
+            'document': a.documentAdmin,
+            'horario': a.horario
+        })
+
+    return jsonify(empleados)
