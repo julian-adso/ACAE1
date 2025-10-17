@@ -265,10 +265,10 @@ async function abrirModalEdicion(id, tipo) {
 
     document.getElementById('save-changes').onclick = async () => {
         const payload = {
-            username: document.getElementById('edit-username').value,
-            document: document.getElementById('edit-document').value,
-            phone: document.getElementById('edit-phone').value,
-            email: document.getElementById('edit-email').value,
+            usernameUser: document.getElementById('edit-username').value,
+            documentUser: document.getElementById('edit-document').value,
+            phoneUser: document.getElementById('edit-phone').value,
+            emailUser: document.getElementById('edit-email').value,
             horario: document.getElementById('edit-horario').value,
             password: document.getElementById('edit-password').value
         };

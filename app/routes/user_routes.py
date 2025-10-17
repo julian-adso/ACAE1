@@ -413,25 +413,30 @@ def registrar_ingreso():
 def obtener_empleado(tipo, empleado_id):
     if tipo == 'user':
         empleado = User.query.get(empleado_id)
-    elif tipo == 'admin':
-        empleado = Admin.query.get(empleado_id)
-    else:
-        return jsonify({'success': False, 'message': 'Tipo inválido'}), 400
-
-    if not empleado:
-        return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
-
-    # Devuelve los datos principales del empleado
-    return jsonify({
-        'success': True,
-        'empleado': {
+        if not empleado:
+            return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
+        datos = {
             'username': empleado.usernameUser,
             'document': empleado.documentUser,
             'phone': empleado.phoneUser,
             'email': empleado.emailUser,
             'horario': empleado.horario
         }
-    })
+    elif tipo == 'admin':
+        empleado = Admin.query.get(empleado_id)
+        if not empleado:
+            return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
+        datos = {
+            'username': empleado.usernameAdmin,
+            'document': empleado.documentAdmin,
+            'phone': empleado.phoneAdmin,
+            'email': empleado.emailAdmin,
+            'horario': empleado.horario
+        }
+    else:
+        return jsonify({'success': False, 'message': 'Tipo inválido'}), 400
+
+    return jsonify({'success': True, 'empleado': datos})
 
 
 
