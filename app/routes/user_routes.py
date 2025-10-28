@@ -672,3 +672,38 @@ def listar_empleados():
         })
 
     return jsonify(empleados)
+
+@user_bp.route('/api/empleado/<string:tipo>/<int:empleado_id>', methods=['DELETE'])
+@login_required(role=['admin', 'super'])
+def eliminar_empleado(tipo, empleado_id):
+        if tipo == 'user':
+            empleado = User.query.get(empleado_id)
+            if not empleado:
+                return jsonify({'success': False, 'message': 'Empleado no encontrado'}), 404
+            
+            # Eliminar el login asociado (si lo tiene)
+            if empleado.login_id:
+                login = Login.query.get(empleado.login_id)
+                if login:
+                    db.session.delete(login)
+
+            db.session.delete(empleado)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Empleado eliminado correctamente'})
+
+        elif tipo == 'admin':
+            empleado = Admin.query.get(empleado_id)
+            if not empleado:
+                return jsonify({'success': False, 'message': 'Administrador no encontrado'}), 404
+            
+            if empleado.login_id:
+                login = Login.query.get(empleado.login_id)
+                if login:
+                    db.session.delete(login)
+
+            db.session.delete(empleado)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Administrador eliminado correctamente'})
+        
+        else:
+            return jsonify({'success': False, 'message': 'Tipo inválido'}), 400

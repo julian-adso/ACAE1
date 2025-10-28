@@ -264,14 +264,25 @@ async function abrirModalEdicion(id, tipo) {
     document.getElementById('cancel-edit').onclick = () => modal.remove();
 
     document.getElementById('save-changes').onclick = async () => {
-        const payload = {
-            usernameUser: document.getElementById('edit-username').value,
-            documentUser: document.getElementById('edit-document').value,
-            phoneUser: document.getElementById('edit-phone').value,
-            emailUser: document.getElementById('edit-email').value,
-            horario: document.getElementById('edit-horario').value,
-            password: document.getElementById('edit-password').value
-        };
+    // Detección dinámica de los campos correctos según tipo
+    const isUser = tipo === 'user';
+    const payload = isUser
+            ? {
+                usernameUser: document.getElementById('edit-username').value,
+                documentUser: document.getElementById('edit-document').value,
+                phoneUser: document.getElementById('edit-phone').value,
+                emailUser: document.getElementById('edit-email').value,
+                horario: document.getElementById('edit-horario').value,
+                password: document.getElementById('edit-password').value
+            }
+            : {
+                usernameAdmin: document.getElementById('edit-username').value,
+                documentAdmin: document.getElementById('edit-document').value,
+                phoneAdmin: document.getElementById('edit-phone').value,
+                emailAdmin: document.getElementById('edit-email').value,
+                horario: document.getElementById('edit-horario').value,
+                password: document.getElementById('edit-password').value
+            };
 
         const resp = await fetch(`/api/empleado/${tipo}/${id}`, {
             method: "PUT",

@@ -24,7 +24,7 @@
 
         <form id="login-form" method="POST" action="{{ url_for('user.login') }}">
             <div class="input-group">
-                <label for="username">Usuario o Email</label>
+                <label for="username">Usuario</label>
                 <input type="text" id="username" name="username" required>
             </div>
 
@@ -44,6 +44,7 @@
                 {% endif %}
             {% endwith %}
 
+            <button>Regresar</button>
             <button type="submit">Ingresar</button>
         </form>
     </div>

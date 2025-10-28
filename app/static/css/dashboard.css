@@ -108,6 +108,15 @@ body {
     background-color: #3ac95c;
 }
 
+.btn.warning {
+    background-color: #ffb84d; /* dorado */
+    color: white; /* texto oscuro para contraste */
+}
+.btn.warning:hover {
+    background-color: #ff9900; /* más intenso al pasar */
+    color: white;
+}
+
 /* === CONTENIDO PRINCIPAL === */
 .dashboard-main {
     display: grid;
@@ -217,6 +226,17 @@ table tbody tr {
     font-size: 1.05em;
 }
 
+/* === PÁRRAFOS EN DETALLES === */
+#details-content p,
+#summary-content p {
+    color: #d1d5db; /* texto informativo claro */
+    font-size: 0.95em;
+}
+
+/* === SUBTÍTULOS Y TEXTOS SECUNDARIOS === */
+.subtitle, .summary {
+    color: #c2cad3;
+}
 
 /* === RESPONSIVE === */
 @media (max-width: 900px) {
@@ -235,6 +255,11 @@ table tbody tr {
         gap: 10px;
         width: 100%;
     }
+}
+
+/* === SUBTÍTULOS Y TEXTOS SECUNDARIOS === */
+.subtitle, .summary {
+    color: #c2cad3;
 }
 
 .modal {
@@ -260,17 +285,59 @@ table tbody tr {
     margin-bottom: 10px;
 }
 
+/* === ETIQUETAS DEL MODAL === */
 .modal-content label {
+    color: #ffb84d;
     display: block;
     margin-top: 8px;
     font-weight: bold;
 }
 
-.modal-content input, 
+
+/* === CAMPOS DE ENTRADA DEL MODAL === */
+.modal-content input,
 .modal-content select {
+    background-color: #1c2940;
+    color: #f1f1f1;
+    border: 1.5px solid #ffb84d;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
     width: 100%;
     padding: 6px;
     margin-top: 4px;
+}
+
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: #ff9900;
+    box-shadow: 0 0 6px rgba(255, 153, 0, 0.6);
+    outline: none;
+}
+
+/* === PLACEHOLDER CLARO === */
+.modal-content input::placeholder {
+    color: #aaa;
+}
+
+/* === BOTONES DENTRO DEL MODAL === */
+.modal-actions .btn {
+    width: 48%;
+}
+
+/* === TITULOS DEL MODAL === */
+.modal-content h3 {
+    color: #ffb84d;
+    border-bottom: 2px solid #ff9900;
+    padding-bottom: 5px;
+    margin-bottom: 12px;
+}
+
+/* === PANEL DE DETALLES === */
+#details-panel p, #details-panel div {
+    color: #dce2eb;
 }
 
 .modal-actions {
