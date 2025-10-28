@@ -18,6 +18,7 @@ import qrcode
 from werkzeug.utils import secure_filename
 from flask import send_file
 from io import BytesIO
+import re
 
 user_bp = Blueprint('user', __name__)
 
@@ -141,6 +142,12 @@ def register():
 
         if not all([username, password, document, phone, email, horario]):
             flash('Todos los campos son obligatorios')
+            return render_template('register.html')
+
+        # Validar contraseña segura
+        pattern = r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{8,}$'
+        if not re.match(pattern, password):
+            flash('La contraseña debe tener al menos una mayúscula, un número y un carácter especial, y tener mínimo 8 caracteres.')
             return render_template('register.html')
 
         if User.query.filter_by(usernameUser=username).first():

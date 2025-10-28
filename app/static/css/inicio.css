@@ -243,3 +243,122 @@ footer {
 
 }
 
+/* ===============================
+   🌐 Diseño Responsive
+   =============================== */
+
+/* Dispositivos medianos (tablets) */
+@media (max-width: 992px) {
+    .navbar .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .navbar nav ul li {
+        margin: 8px;
+    }
+
+    .hero-content {
+        padding: 30px 20px;
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .contact-info {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* Dispositivos pequeños (celulares) */
+@media (max-width: 768px) {
+    /* 🔹 Navbar adaptable tipo menú vertical */
+    .navbar .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar nav ul {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    .navbar nav ul li {
+        margin: 10px 0;
+    }
+
+    /* 🔹 Hero section más compacta */
+    .hero {
+        height: auto;
+        padding: 60px 20px;
+    }
+
+    .hero-content {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    /* 🔹 Galería */
+    .swiper {
+        height: 250px;
+    }
+
+    /* 🔹 Contacto */
+    .contact-info {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-item {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    /* 🔹 Botones */
+    .cta-button {
+        width: 100%;
+        padding: 12px 0;
+        text-align: center;
+    }
+}
+
+/* Pantallas muy pequeñas (menos de 480px) */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 1.6rem;
+    }
+
+    .hero p {
+        font-size: 0.9rem;
+    }
+
+    .navbar .logo-text {
+        font-size: 1.2rem;
+    }
+
+    .navbar .logo-img {
+        height: 32px;
+    }
+}

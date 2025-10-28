@@ -14,11 +14,19 @@ body {
     background-color: var(--background-color);
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start; /* 👈 alinea arriba */
+    min-height: 100vh; /* 👈 asegura altura mínima */
     margin: 0;
     color: var(--text-color);
+    padding-top: 40px; /* 👈 agrega espacio visual superior */
+    overflow-y: auto; /* 👈 permite desplazamiento */
+    background: url("../img/fonfo.png") no-repeat center center fixed;
+    background-size: cover;
+    background-color: var(--background-color);
+    backdrop-filter: blur(2px);
+
 }
+
 
 .login-container {
     max-width: 400px;
