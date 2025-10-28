@@ -44,8 +44,8 @@
                 {% endif %}
             {% endwith %}
 
-            <button>Regresar</button>
-            <button type="submit">Ingresar</button>
+            <a href="{{ url_for('user.inicio') }}" class="btn btn-regresar">Regresar</a>
+            <button type="submit" class="btn btn-ingresar">Ingresar</button>
         </form>
     </div>
 </body>

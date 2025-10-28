@@ -674,7 +674,6 @@ def listar_empleados():
     return jsonify(empleados)
 
 @user_bp.route('/api/empleado/<string:tipo>/<int:empleado_id>', methods=['DELETE'])
-@login_required(role=['admin', 'super'])
 def eliminar_empleado(tipo, empleado_id):
         if tipo == 'user':
             empleado = User.query.get(empleado_id)
@@ -707,3 +706,7 @@ def eliminar_empleado(tipo, empleado_id):
         
         else:
             return jsonify({'success': False, 'message': 'Tipo inválido'}), 400
+
+@user_bp.route('/inicio')
+def inicio():
+    return render_template('inicio.html')

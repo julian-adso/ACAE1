@@ -79,23 +79,7 @@ h1 {
     box-shadow: 0 0 4px var(--primary-hover-color);
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--primary-color);
-    color: var(--background-color);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: var(--primary-hover-color);
-}
-
+/* Mensajes de error */
 .error-message {
     color: var(--error-color);
     text-align: center;
@@ -107,7 +91,7 @@ button:hover {
     border-radius: 6px;
 }
 
-/* Estilo para el select (igual que los inputs) */
+/* Estilo del select (coherente con input) */
 .input-group select {
     width: 100%;
     padding: 10px;
@@ -118,7 +102,11 @@ button:hover {
     font-size: 16px;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    appearance: none; /* quita flecha por defecto del navegador */
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23ff9900' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 18px;
 }
 
 .input-group select:focus {
@@ -127,30 +115,84 @@ button:hover {
     box-shadow: 0 0 4px var(--primary-hover-color);
 }
 
-/* Agrega una pequeña flecha personalizada (opcional) */
-.input-group select {
-    background-image: url("data:image/svg+xml;utf8,<svg fill='%23ff9900' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 18px;
-}
+/* ============================= */
+/* BOTONES UNIFICADOS Y MEJORADOS */
+/* ============================= */
 
-.btn-back {
-    display: inline-block;
-    padding: 10px 18px;
-    background-color: #444c56;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
+.btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
     font-weight: 600;
-    font-size: 1em;
-    margin-right: 10px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+    box-sizing: border-box;
 }
 
-.btn-back:hover {
-    background-color: #ff9900;
-    color: #fff;
+/* Botón Regresar */
+.btn-regresar {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-regresar:hover {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    box-shadow: 0 0 10px var(--primary-hover-color);
+}
+
+/* Botón Ingresar */
+.btn-ingresar {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    border: none;
+}
+
+.btn-ingresar:hover {
+    background-color: var(--primary-hover-color);
+    box-shadow: 0 0 10px var(--primary-hover-color);
+}
+
+/* Alineación vertical uniforme */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ============================= */
+/* 🎨 BOTÓN INGRESAR MODERNO */
+/* ============================= */
+
+.btn-ingresar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--background-color);
+    background: linear-gradient(90deg, var(--primary-color), #ffb84d);
+    box-shadow: 0 0 12px rgba(255, 153, 0, 0.6);
+    transition: all 0.35s ease;
+    letter-spacing: 0.5px;
+}
+
+.btn-ingresar:hover {
+    transform: scale(1.03);
+    background: linear-gradient(90deg, #ffb84d, var(--primary-color));
+    box-shadow: 0 0 18px rgba(255, 184, 77, 0.9);
+}
+
+/* Pequeño efecto de "presionado" */
+.btn-ingresar:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 8px rgba(255, 153, 0, 0.6);
 }
