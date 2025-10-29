@@ -21,26 +21,38 @@ from io import BytesIO
 import re
 
 user_bp = Blueprint('user', __name__)
-
 def registrar_ausencias_global():
-
     hoy = datetime.now()
-    
+
     # --- Rango del mes actual ---
     primer_dia = hoy.replace(day=1)
     ultimo_dia = hoy.replace(day=monthrange(hoy.year, hoy.month)[1])
-    dias_mes = [primer_dia.replace(day=d) for d in range(1, ultimo_dia.day + 1)]
-    
-    # --- Usuarios ---
+
+    # ==========================
+    #   AUSENCIAS DE USUARIOS
+    # ==========================
     usuarios = User.query.all()
     for usuario in usuarios:
+        # 🟢 Verificamos que el usuario tenga fecha de creación
+        if not hasattr(usuario, 'fecha_creacion') or not usuario.fecha_creacion:
+            continue  # si no tiene fecha de creación, lo saltamos
+
+        # 🔹 Determinar desde cuándo contar sus ausencias
+        fecha_inicio = max(usuario.fecha_creacion.date(), primer_dia.date())
+
+        # 🔹 Días desde la fecha de creación hasta fin del mes
+        dias_mes = [fecha_inicio + timedelta(days=i) for i in range((ultimo_dia.date() - fecha_inicio).days + 1)]
+
+        # 🔹 Fechas donde ya registró ingreso
         fechas_con_ingreso = set(
             i.fecha for i in Ingreso.query.filter_by(user_id=usuario.idUser)
             .filter(db.extract('month', Ingreso.fecha) == hoy.month)
             .all()
         )
+
+        # 🔹 Registrar ausencias solo desde fecha de creación
         for dia in dias_mes:
-            if dia.date() < hoy.date() and dia.date() not in fechas_con_ingreso:
+            if dia < hoy.date() and dia not in fechas_con_ingreso:
                 if not Ingreso.query.filter_by(user_id=usuario.idUser, fecha=dia.date()).first():
                     ausencia = Ingreso(
                         user_id=usuario.idUser,
@@ -54,16 +66,26 @@ def registrar_ausencias_global():
                     )
                     db.session.add(ausencia)
 
-    # --- Admins ---
+    # ==========================
+    #   AUSENCIAS DE ADMINS
+    # ==========================
     admins = Admin.query.all()
     for admin in admins:
+        # 🟢 Verificamos que el admin tenga fecha de creación
+        if not hasattr(admin, 'fecha_creacion') or not admin.fecha_creacion:
+            continue
+
+        fecha_inicio = max(admin.fecha_creacion.date(), primer_dia.date())
+        dias_mes = [fecha_inicio + timedelta(days=i) for i in range((ultimo_dia.date() - fecha_inicio).days + 1)]
+
         fechas_con_ingreso = set(
             i.fecha for i in Ingreso.query.filter_by(admin_id=admin.idAdmin)
             .filter(db.extract('month', Ingreso.fecha) == hoy.month)
             .all()
         )
+
         for dia in dias_mes:
-            if dia.date() < hoy.date() and dia.date() not in fechas_con_ingreso:
+            if dia < hoy.date() and dia not in fechas_con_ingreso:
                 if not Ingreso.query.filter_by(admin_id=admin.idAdmin, fecha=dia.date()).first():
                     ausencia = Ingreso(
                         user_id=None,
@@ -78,6 +100,7 @@ def registrar_ausencias_global():
                     db.session.add(ausencia)
 
     db.session.commit()
+
 
 # Página inicial (ahora inicio.html)
 @user_bp.route('/')
@@ -168,7 +191,8 @@ def register():
             documentUser=document,
             phoneUser=phone,
             emailUser=email,
-            horario=horario
+            horario=horario,
+            fecha_creacion=datetime.now()
         )
         db.session.add(user)
         db.session.flush() #Para obtener el IDuser
