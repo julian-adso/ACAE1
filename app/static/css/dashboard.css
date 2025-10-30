@@ -345,3 +345,55 @@ table tbody tr {
     display: flex;
     justify-content: space-between;
 }
+
+/* === Botón eliminar registros === */
+.btn-danger {
+    background-color: #e63946;         /* Rojo principal */
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    transition: all 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-danger:hover {
+    background-color: #d62828;         /* Rojo más oscuro */
+    transform: scale(1);
+}
+
+.btn-danger:active {
+    transform: scale(0.97);
+}
+
+/* Mensaje flotante (alerta personalizada) */
+.alerta {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+.alerta.mostrar {
+    opacity: 1;
+    pointer-events: auto;
+}
+.alerta.error {
+    background-color: #e63946;
+}
+.alerta.exito {
+    background-color: #2a9d8f;
+}

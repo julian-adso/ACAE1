@@ -40,11 +40,18 @@
             <section id="details-panel">
                 <h2>Detalles del Día</h2>
                 <button id="export-details-btn" class="btn success">Exportar datos</button>
+                <!-- 🔴 Nuevo botón para eliminar registros antiguos -->
+                <button id="btnEliminarRegistros" class="btn btn-danger mt-2 w-100">
+                    🗑️ Eliminar registros de hace dos meses
+                </button>
                 <div id="details-content">
                     <p>Seleccione un día en el calendario para ver los detalles.</p>
                 </div>
                 <hr>
                 <div id="summary-content" class="summary"></div>
+                <!-- 🔹 Campos ocultos para guardar el ID y el rol del empleado seleccionado -->
+                <input type="hidden" id="empleadoIdSeleccionado" value="">
+                <input type="hidden" id="empleadoRolSeleccionado" value="">
             </section>
         </main>
     </div>

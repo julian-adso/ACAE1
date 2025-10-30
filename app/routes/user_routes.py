@@ -730,3 +730,53 @@ def eliminar_empleado(tipo, empleado_id):
 @user_bp.route('/inicio')
 def inicio():
     return render_template('inicio.html')
+
+@user_bp.route('/eliminar_registros_antiguos/<string:role>/<int:empleado_id>', methods=['DELETE'])
+def eliminar_registros_antiguos_por_rol(role, empleado_id):
+    """
+    Elimina Ingreso y Salida de hace más de ~60 días (2 meses aproximados)
+    role: 'user' o 'admin'
+    empleado_id: id del user o admin según el role
+    """
+    try:
+        hoy = datetime.now()
+        limite_fecha = (hoy - timedelta(days=60)).date()
+
+        if role.lower() == 'user':
+            ingresos_query = Ingreso.query.filter(
+                Ingreso.user_id == empleado_id,
+                Ingreso.fecha < limite_fecha
+            )
+            salidas_query = Salida.query.filter(
+                Salida.user_id == empleado_id,
+                Salida.fecha < limite_fecha
+            )
+        elif role.lower() == 'admin':
+            ingresos_query = Ingreso.query.filter(
+                Ingreso.admin_id == empleado_id,
+                Ingreso.fecha < limite_fecha
+            )
+            salidas_query = Salida.query.filter(
+                Salida.admin_id == empleado_id,
+                Salida.fecha < limite_fecha
+            )
+        else:
+            return jsonify({"success": False, "message": "Role inválido. Use 'user' o 'admin'."}), 400
+
+        # contar antes de eliminar (opcional, para el mensaje)
+        ingresos_count = ingresos_query.count()
+        salidas_count = salidas_query.count()
+
+        # eliminar
+        ingresos_query.delete(synchronize_session=False)
+        salidas_query.delete(synchronize_session=False)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": f"Se eliminaron {ingresos_count} ingresos y {salidas_count} salidas anteriores a {limite_fecha} para {role} id={empleado_id}."
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"Ocurrió un error: {str(e)}"}), 500

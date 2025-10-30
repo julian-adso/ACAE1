@@ -28,29 +28,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 👥 Cargar lista de empleados
     // =============================
     async function cargarEmpleados() {
-        try {
-            const res = await fetch('/api/empleados');
-            const empleados = await res.json();
+    try {
+        const res = await fetch('/api/empleados');
+        const empleados = await res.json();
 
-            employeeSelect.innerHTML = '';
+        employeeSelect.innerHTML = '';
 
-            empleados.forEach(emp => {
-                const option = document.createElement('option');
-                option.value = emp.id;
-                option.textContent = emp.name;
-                option.setAttribute('data-tipo', emp.tipo);
-                employeeSelect.appendChild(option);
-            });
+        empleados.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = emp.name;
+            option.setAttribute('data-tipo', emp.tipo);
+            employeeSelect.appendChild(option);
+        });
 
-            if (empleados.length > 0) {
-                employeeSelect.value = empleados[0].id;
-                actualizarCalendario(empleados[0].id);
-            }
-        } catch (error) {
-            console.error("Error cargando empleados:", error);
+        if (empleados.length > 0) {
+            employeeSelect.value = empleados[0].id;
+
+            // 🔹 Asignar los valores ocultos aquí:
+            document.getElementById('empleadoIdSeleccionado').value = empleados[0].id;
+            document.getElementById('empleadoRolSeleccionado').value = empleados[0].tipo;
+
+            actualizarCalendario(empleados[0].id);
         }
+    } catch (error) {
+        console.error("Error cargando empleados:", error);
     }
-
+}
     // =============================
     // ⏰ Cargar asistencias al calendario
     // =============================
@@ -181,6 +185,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 🎯 Cambio de empleado
     // =============================
     employeeSelect.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const tipo = selectedOption.getAttribute('data-tipo');
+
+        // 🔹 Actualizar los campos ocultos
+        document.getElementById('empleadoIdSeleccionado').value = e.target.value;
+        document.getElementById('empleadoRolSeleccionado').value = tipo;
+
         actualizarCalendario(e.target.value);
     });
 
@@ -196,6 +207,44 @@ document.addEventListener('DOMContentLoaded', async function () {
         const tipo = employeeSelect.options[employeeSelect.selectedIndex].getAttribute('data-tipo');
         const userId = employeeSelect.value;
         window.location.href = `/api/exportar_excel/${tipo}/${userId}`;
+    });
+
+    // ===============================
+    // 🔴 ELIMINAR INGRESOS Y SALIDAS ANTIGUOS
+    // ===============================
+    document.getElementById('btnEliminarRegistros').addEventListener('click', async () => {
+        const empleadoId = document.getElementById('empleadoIdSeleccionado')?.value;
+        const empleadoRol = document.getElementById('empleadoRolSeleccionado')?.value;
+
+        if (!empleadoId || !empleadoRol) {
+            alert("⚠️ Debes seleccionar un empleado primero.");
+            return;
+        }
+
+        if (!confirm("¿Seguro que deseas eliminar los ingresos y salidas de hace dos meses de este empleado? Esta acción no se puede deshacer.")) {
+            return;
+        }
+
+        try {
+            // ruta que espera: /eliminar_registros_antiguos/<role>/<id>
+            const response = await fetch(`/eliminar_registros_antiguos/${empleadoRol}/${empleadoId}`, {
+                method: "DELETE",
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert(`✅ ${data.message}`);
+                // opcional: recargar calendario / resúmenes
+                actualizarCalendario(empleadoId);
+            } else {
+                // mostrar mensaje de error desde el servidor
+                alert(`❌ Error: ${data.message || 'No se pudo eliminar.'}`);
+            }
+        } catch (error) {
+            console.error("Error al eliminar registros:", error);
+            alert("Ocurrió un error al intentar eliminar los registros antiguos.");
+        }
     });
 });
 
