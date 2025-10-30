@@ -21,8 +21,9 @@ from io import BytesIO
 import re
 
 user_bp = Blueprint('user', __name__)
+
 def registrar_ausencias_global():
-    hoy = datetime.now()
+    hoy = datetime.now().date()
 
     # --- Rango del mes actual ---
     primer_dia = hoy.replace(day=1)
@@ -33,32 +34,32 @@ def registrar_ausencias_global():
     # ==========================
     usuarios = User.query.all()
     for usuario in usuarios:
-        # 🟢 Verificamos que el usuario tenga fecha de creación
         if not hasattr(usuario, 'fecha_creacion') or not usuario.fecha_creacion:
-            continue  # si no tiene fecha de creación, lo saltamos
+            continue
 
-        # 🔹 Determinar desde cuándo contar sus ausencias
-        fecha_inicio = max(usuario.fecha_creacion.date(), primer_dia.date())
+        # 📅 Fecha inicial: el mayor entre creación y primer día del mes
+        fecha_inicio = max(usuario.fecha_creacion.date(), primer_dia)
 
-        # 🔹 Días desde la fecha de creación hasta fin del mes
-        dias_mes = [fecha_inicio + timedelta(days=i) for i in range((ultimo_dia.date() - fecha_inicio).days + 1)]
+        # 📅 Días válidos: desde creación hasta AYER
+        dias_mes = [
+            fecha_inicio + timedelta(days=d)
+            for d in range((hoy - fecha_inicio).days)
+        ]
 
-        # 🔹 Fechas donde ya registró ingreso
         fechas_con_ingreso = set(
             i.fecha for i in Ingreso.query.filter_by(user_id=usuario.idUser)
             .filter(db.extract('month', Ingreso.fecha) == hoy.month)
             .all()
         )
 
-        # 🔹 Registrar ausencias solo desde fecha de creación
         for dia in dias_mes:
-            if dia < hoy.date() and dia not in fechas_con_ingreso:
-                if not Ingreso.query.filter_by(user_id=usuario.idUser, fecha=dia.date()).first():
+            if dia not in fechas_con_ingreso:
+                if not Ingreso.query.filter_by(user_id=usuario.idUser, fecha=dia).first():
                     ausencia = Ingreso(
                         user_id=usuario.idUser,
                         admin_id=None,
                         rol='User',
-                        fecha=dia.date(),
+                        fecha=dia,
                         hora=datetime.strptime("00:00", "%H:%M").time(),
                         horario=usuario.horario,
                         estado='Ausente',
@@ -71,12 +72,15 @@ def registrar_ausencias_global():
     # ==========================
     admins = Admin.query.all()
     for admin in admins:
-        # 🟢 Verificamos que el admin tenga fecha de creación
         if not hasattr(admin, 'fecha_creacion') or not admin.fecha_creacion:
             continue
 
-        fecha_inicio = max(admin.fecha_creacion.date(), primer_dia.date())
-        dias_mes = [fecha_inicio + timedelta(days=i) for i in range((ultimo_dia.date() - fecha_inicio).days + 1)]
+        fecha_inicio = max(admin.fecha_creacion.date(), primer_dia)
+
+        dias_mes = [
+            fecha_inicio + timedelta(days=d)
+            for d in range((hoy - fecha_inicio).days)
+        ]
 
         fechas_con_ingreso = set(
             i.fecha for i in Ingreso.query.filter_by(admin_id=admin.idAdmin)
@@ -85,13 +89,13 @@ def registrar_ausencias_global():
         )
 
         for dia in dias_mes:
-            if dia < hoy.date() and dia not in fechas_con_ingreso:
-                if not Ingreso.query.filter_by(admin_id=admin.idAdmin, fecha=dia.date()).first():
+            if dia not in fechas_con_ingreso:
+                if not Ingreso.query.filter_by(admin_id=admin.idAdmin, fecha=dia).first():
                     ausencia = Ingreso(
                         user_id=None,
                         admin_id=admin.idAdmin,
                         rol='Admin',
-                        fecha=dia.date(),
+                        fecha=dia,
                         hora=datetime.strptime("00:00", "%H:%M").time(),
                         horario=admin.horario,
                         estado='Ausente',
@@ -243,21 +247,6 @@ def index():
     )
 
     # Registrar ausencia para los días sin ingreso y que sean <= hoy
-    for dia in dias_mes:
-         if dia.date() < hoy.date() and dia.date() not in fechas_con_ingreso:
-            if not Ingreso.query.filter_by(user_id=usuario.idUser, fecha=dia.date()).first():
-                ausencia = Ingreso(
-                    user_id=usuario.idUser,
-                    admin_id=None,
-                    rol='User',  # <--- Asigna el rol correspondiente
-                    fecha=dia.date(),
-                    hora=datetime.strptime("00:00", "%H:%M").time(),
-                    horario=usuario.horario,
-                    estado='Ausente',
-                    motivo='No asistió'
-                )
-                db.session.add(ausencia)
-    db.session.commit()
     # --- FIN REGISTRO AUTOMÁTICO ---
 
     asistencias = Ingreso.query.filter_by(user_id=usuario.idUser, estado='Presente')\

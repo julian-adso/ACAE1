@@ -7,7 +7,7 @@ app = create_app()
 
 # Inicializar la base de datos y registrar los modelos
 with app.app_context():
-    from app.models import admin, user, login, ingreso, historial, salida, super
+    from app.models import admin, user, login, ingreso, salida, super
     db.create_all()
 
     from app.models.user import User
